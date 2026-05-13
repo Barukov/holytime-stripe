@@ -26,7 +26,7 @@ const faq = [
   ["What do I receive?", "You receive PDF guides, templates, worksheets, planners and checklists."],
   ["How is it delivered?", "Delivery is made by email after successful payment confirmation."],
   ["Can I get a refund?", "Refunds are not available after digital delivery is completed."],
-  ["Is payment secure?", "Yes, payment is processed securely through Stripe checkout."],
+  ["Is payment secure?", "Yes, payment is processed securely through Dodo checkout."],
 ];
 
 export default function ProductPage() {
@@ -197,7 +197,8 @@ export default function ProductPage() {
             </button>
 
             <p className="mt-4 text-center text-xs text-black/40">
-              Secure checkout powered by Stripe
+              Secure checkout powered by Dodo Payments
+
             </p>
           </aside>
         </div>

@@ -12,7 +12,7 @@ const products = [
 const faq = [
   ["What do I receive?", "PDF guides, templates, worksheets, planners and checklists."],
   ["How does delivery work?", "After payment, delivery goes to your email."],
-  ["Is payment secure?", "Yes, checkout is processed through Stripe."],
+  ["Is payment secure?", "Yes, checkout is processed through Dodo Payments."],
   ["Can I get a refund?", "Digital products are not refundable after delivery."],
 ];
 

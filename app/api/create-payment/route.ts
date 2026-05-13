@@ -1,71 +1,75 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const products: Record<string, { name: string; amount: number }> = {
-  starter: {
-    name: "Starter Learning Pack",
-    amount: 4900,
-  },
-  advanced: {
-    name: "Advanced Learning Pack",
-    amount: 14900,
-  },
-  premium: {
-    name: "Premium Resource Bundle",
-    amount: 21900,
-  },
+const DODO_PRODUCT_IDS: Record<string, string> = {
+  starter: "pdt_0NejbFdEWiZuZ0NsYybwy",
+  advanced: "pdt_0NejbNVbnt9348XguwcxN",
+  premium: "pdt_0NejbUCTIjwPIhZLQ8eoa",
 };
 
 export async function POST(req: Request) {
   try {
     const { email, productId } = await req.json();
 
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    const dodoProductId = DODO_PRODUCT_IDS[productId];
+
+    if (!email || !dodoProductId) {
+      return NextResponse.json({ error: "Bad request" }, { status: 400 });
     }
 
-    const product = products[productId];
+    const apiKey = process.env.DODO_PAYMENTS_API_KEY;
 
-    if (!product) {
-      return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Missing Dodo API key" },
+        { status: 500 }
+      );
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card", "ideal", "bancontact"],
-
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: product.name,
-            },
-            unit_amount: product.amount,
-          },
-          quantity: 1,
-        },
-      ],
-
-      customer_email: email,
-
-      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/product/${productId}`,
-
-      metadata: {
-        productId,
-        productName: product.name,
-        customerEmail: email,
+    const res = await fetch("https://test.dodopayments.com/payments", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify({
+        product_cart: [
+          {
+            product_id: dodoProductId,
+            quantity: 1,
+          },
+        ],
+        customer: {
+          email,
+        },
+        metadata: {
+          productId,
+          customerEmail: email,
+        },
+        return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
+      }),
     });
 
-    return NextResponse.json({ checkoutUrl: session.url });
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Dodo error:", data);
+      return NextResponse.json(
+        { error: "Dodo failed", details: data },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      checkoutUrl:
+        data.payment_link || data.checkout_url || data.url,
+    });
   } catch (error) {
-    console.error("Stripe checkout error:", error);
+    console.error("Dodo checkout error:", error);
     return NextResponse.json(
-      { error: "Stripe checkout failed" },
+      { error: "Server error" },
       { status: 500 }
     );
   }
