@@ -13,19 +13,21 @@ export async function POST(req: Request) {
   try {
     const { email, productId } = await req.json();
 
-    const dodoProductId = DODO_PRODUCT_IDS[productId];
-
-    if (!email || !dodoProductId) {
+    if (!email || !productId) {
       return NextResponse.json({ error: "Bad request" }, { status: 400 });
     }
 
-    const apiKey = process.env.DODO_PAYMENTS_API_KEY;
+    const dodoProductId = DODO_PRODUCT_IDS[productId];
 
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Missing Dodo API key" },
-        { status: 500 }
-      );
+    if (!dodoProductId) {
+      return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+    }
+
+    const apiKey = process.env.DODO_PAYMENTS_API_KEY;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+    if (!apiKey || !siteUrl) {
+      return NextResponse.json({ error: "Missing env" }, { status: 500 });
     }
 
     const res = await fetch("https://live.dodopayments.com/payments", {
@@ -41,12 +43,18 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        customer_email: email, // 🔥 ВОТ ЭТО ГЛАВНЫЙ ФИКС
-        metadata: {
-          productId,
-          customerEmail: email,
+        customer: {
+          email,
+          name: email,
         },
-        return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
+        billing: {
+          city: "Kyiv",
+          country: "UA",
+          state: "Kyiv",
+          street: "Kyiv",
+          zipcode: "01001",
+        },
+        return_url: `${siteUrl}/success`,
       }),
     });
 
@@ -61,14 +69,10 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      checkoutUrl:
-        data.payment_link || data.checkout_url || data.url,
+      checkoutUrl: data.payment_link || data.checkout_url || data.url,
     });
   } catch (error) {
     console.error("Dodo checkout error:", error);
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
