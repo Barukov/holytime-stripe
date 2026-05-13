@@ -4,9 +4,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DODO_PRODUCT_IDS: Record<string, string> = {
-  starter: "pdt_0NejbFdEWiZuZ0NsYybwy",
-  advanced: "pdt_0NejbNVbnt9348XguwcxN",
-  premium: "pdt_0NejbUCTIjwPIhZLQ8eoa",
+  starter: "pdt_0Nejk64sUSamH5UNL2Ktw",
+  advanced: "pdt_0NejkFOBCGn3V16i67R5T",
+  premium: "pdt_0NejkOL94xZvv7363UZMW",
 };
 
 export async function POST(req: Request) {
