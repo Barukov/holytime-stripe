@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const res = await fetch("https://test.dodopayments.com/payments", {
+   const res = await fetch("https://live.dodopayments.com/payments", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
