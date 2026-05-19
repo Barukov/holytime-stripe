@@ -43,7 +43,7 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        customer_email: email,
+        customer_email: email, // ✅ ТОЛЬКО ЭТО
         return_url: `${siteUrl}/success`,
       }),
     });
