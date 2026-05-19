@@ -13,14 +13,10 @@ export async function POST(req: Request) {
   try {
     const { email, productId } = await req.json();
 
-    if (!email || !productId) {
-      return NextResponse.json({ error: "Bad request" }, { status: 400 });
-    }
-
     const dodoProductId = DODO_PRODUCT_IDS[productId];
 
-    if (!dodoProductId) {
-      return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+    if (!email || !dodoProductId) {
+      return NextResponse.json({ error: "Bad request" }, { status: 400 });
     }
 
     const apiKey = process.env.DODO_PAYMENTS_API_KEY;
@@ -30,7 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing env" }, { status: 500 });
     }
 
-    const res = await fetch("https://live.dodopayments.com/payments", {
+    const res = await fetch("https://live.dodopayments.com/checkouts", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -43,7 +39,10 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        customer_email: email, // ✅ ТОЛЬКО ЭТО
+        customer: {
+          email,
+          name: email,
+        },
         return_url: `${siteUrl}/success`,
       }),
     });
@@ -59,7 +58,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      checkoutUrl: data.payment_link || data.checkout_url || data.url,
+      checkoutUrl: data.checkout_url,
     });
   } catch (error) {
     console.error("Dodo checkout error:", error);
