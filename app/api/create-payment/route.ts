@@ -43,17 +43,7 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        customer: {
-          email,
-          name: email,
-        },
-        billing: {
-          city: "Kyiv",
-          country: "UA",
-          state: "Kyiv",
-          street: "Kyiv",
-          zipcode: "01001",
-        },
+        customer_email: email,
         return_url: `${siteUrl}/success`,
       }),
     });
