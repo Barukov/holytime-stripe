@@ -7,17 +7,17 @@ import { useState } from "react";
 const products: any = {
   starter: {
     name: "Starter Learning Pack",
-    price: "€49",
+    price: "€219",
     tag: "For beginners",
   },
   advanced: {
     name: "Advanced Learning Pack",
-    price: "€149",
+    price: "€250",
     tag: "Most popular",
   },
   premium: {
     name: "Premium Resource Bundle",
-    price: "€219",
+    price: "€500",
     tag: "Best value",
   },
 };
