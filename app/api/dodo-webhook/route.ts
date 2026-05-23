@@ -26,9 +26,7 @@ async function sendTelegram(text: string) {
 
   await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       chat_id: chatId,
       text,
@@ -52,21 +50,19 @@ export async function POST(req: Request) {
     const eventType = event.type;
     const data: any = event.data || {};
 
-    // 👇 ЛОГ (очень важно для дебага)
     console.log("DODO EVENT:", eventType);
     console.log("DODO DATA:", JSON.stringify(data, null, 2));
 
-    // ✅ нормальный transaction id
     const transactionId =
       data.id ||
       data.transaction_id ||
       data.payment_id ||
       "unknown";
 
-    // 🔒 анти-дубли
     if (processedEvents.has(transactionId)) {
       return new Response("OK", { status: 200 });
     }
+
     processedEvents.add(transactionId);
 
     const productId =
@@ -135,9 +131,9 @@ export async function POST(req: Request) {
       ? new Date(data.created_at).toLocaleString("en-GB")
       : new Date().toLocaleString("en-GB");
 
-    // ❌ FAILED
     if (eventType === "payment.failed") {
       await sendTelegram(`❌ <b>PAYMENT FAILED</b>
+🌐 <b>Website:</b> holytime.space
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
@@ -151,13 +147,12 @@ export async function POST(req: Request) {
       return new Response("OK", { status: 200 });
     }
 
-    // игнор лишних событий
     if (eventType !== "payment.succeeded") {
       return new Response("OK", { status: 200 });
     }
 
-    // ✅ SUCCESS
     await sendTelegram(`💸 <b>PAYMENT SUCCESSFUL</b>
+🌐 <b>Website:</b> holytime.space
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
@@ -187,7 +182,6 @@ export async function POST(req: Request) {
     });
 
     return new Response("OK", { status: 200 });
-
   } catch (err) {
     console.error("Dodo webhook error:", err);
     return new Response("OK", { status: 200 });
