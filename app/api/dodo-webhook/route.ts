@@ -116,10 +116,15 @@ export async function POST(req: Request) {
       data.payment_method_type ||
       "unknown";
 
-    const amount =
+    // 💰 ФИКС СУММЫ
+    const rawAmount =
       data.total_amount ||
       data.amount ||
-      "?";
+      0;
+
+    const amount = rawAmount
+      ? (rawAmount / 100).toFixed(2)
+      : "?";
 
     const currency =
       data.currency ||
@@ -138,6 +143,7 @@ export async function POST(req: Request) {
       ? new Date(data.created_at).toLocaleString("en-GB")
       : new Date().toLocaleString("en-GB");
 
+    // ❌ FAILED (но не если уже success)
     if (eventType === "payment.failed") {
       if (
         status === "succeeded" ||
@@ -166,6 +172,7 @@ export async function POST(req: Request) {
       return new Response("OK", { status: 200 });
     }
 
+    // ✅ SUCCESS
     await sendTelegram(`💸 <b>PAYMENT SUCCESSFUL</b>
 🌐 <b>Website:</b> holytime.space
 
@@ -197,6 +204,7 @@ export async function POST(req: Request) {
     });
 
     return new Response("OK", { status: 200 });
+
   } catch (err) {
     console.error("Dodo webhook error:", err);
     return new Response("OK", { status: 200 });
