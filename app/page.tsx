@@ -4,13 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 
 const products = [
-  ["starter", "Starter Learning Pack", "€219", "PDF guides, checklists, notes templates and study planners."],
-  ["advanced", "Advanced Learning Pack", "€250", "Worksheets, examples, progress trackers and structured resources."],
-  ["premium", "Premium Resource Bundle", "€500", "Full library with guides, templates, worksheets and bonuses."],
-
-  // 🔥 НОВЫЕ НОРМ НАЗВАНИЯ
-  ["product159", "Essential Learning Pack", "€159", "Core guides, templates and structured study resources."],
-  ["product161", "Pro Learning Pack", "€161", "Advanced worksheets, trackers and premium structured materials."],
+  ["starter", "Starter Digital Pack", "€219", "PDF guides, checklists, notes templates and study planners."],
+  ["advanced", "Advanced Digital Pack", "€250", "Worksheets, examples, progress trackers and structured resources."],
+  ["premium", "Premium Digital Bundle", "€500", "Full library with guides, templates, worksheets and bonuses."],
+  ["product159", "Essential Digital Pack", "€159", "Core guides, templates and study resources."],
+  ["product161", "Professional Digital Pack", "€161", "Advanced worksheets, trackers and premium materials."],
 ];
 
 const faq = [
@@ -112,12 +110,12 @@ export default function Page() {
             Choose your <span className="text-[#7657e8]">product</span>
           </h2>
 
-          <div className="mt-14 grid gap-8 md:grid-cols-3">
+          <div className="mt-14 flex flex-wrap justify-center gap-8">
             {products.map(([slug, name, price, desc], i) => (
               <Link
                 key={slug}
                 href={`/product/${slug}`}
-                className={`group rounded-[20px] bg-white p-8 shadow-xl transition duration-300 hover:-translate-y-3 hover:shadow-[0_0_80px_rgba(102,69,232,.45)] ${
+                className={`group w-full max-w-[405px] rounded-[20px] bg-white p-8 shadow-xl transition duration-300 hover:-translate-y-3 hover:shadow-[0_0_80px_rgba(102,69,232,.45)] ${
                   i === 1 ? "ring-4 ring-[#6541df]/30" : ""
                 }`}
               >
@@ -147,10 +145,7 @@ export default function Page() {
               <span className="text-[#7657e8]">Questions</span>
             </h2>
 
-            <Link
-              href="/contact"
-              className="rounded-2xl bg-[#6541df] px-10 py-4 font-bold text-white transition hover:scale-105"
-            >
+            <Link href="/contact" className="rounded-2xl bg-[#6541df] px-10 py-4 font-bold text-white transition hover:scale-105">
               CONTACT US
             </Link>
           </div>
@@ -166,9 +161,7 @@ export default function Page() {
                   <span>{open === i ? "−" : "⌄"}</span>
                 </button>
 
-                {open === i && (
-                  <p className="px-8 pb-7 text-lg leading-8 text-black/60">{a}</p>
-                )}
+                {open === i && <p className="px-8 pb-7 text-lg leading-8 text-black/60">{a}</p>}
               </div>
             ))}
           </div>

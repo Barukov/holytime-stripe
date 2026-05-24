@@ -8,8 +8,8 @@ const DODO_PRODUCT_IDS: Record<string, string> = {
   advanced: "pdt_0NejkFOBCGn3V16i67R5T",
   premium: "pdt_0NejkOL94xZvv7363UZMW",
 
-  product159: "pdt_ВСТАВЬ_ID_159",
-  product161: "pdt_ВСТАВЬ_ID_161",
+  product159: "pdt_0NfXXhYoH1yMwbz8noIAN",
+  product161: "pdt_0NfXXtK5DhzulEse6qBlL",
 };
 
 export async function POST(req: Request) {

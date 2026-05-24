@@ -6,27 +6,27 @@ import { useState } from "react";
 
 const products: any = {
   starter: {
-    name: "Starter Learning Pack",
+    name: "Starter Digital Pack",
     price: "€219",
     tag: "For beginners",
   },
   advanced: {
-    name: "Advanced Learning Pack",
+    name: "Advanced Digital Pack",
     price: "€250",
     tag: "Most popular",
   },
   premium: {
-    name: "Premium Resource Bundle",
+    name: "Premium Digital Bundle",
     price: "€500",
     tag: "Best value",
   },
   product159: {
-    name: "Learning Pack 159",
+    name: "Essential Digital Pack",
     price: "€159",
     tag: "Special offer",
   },
   product161: {
-    name: "Learning Pack 161",
+    name: "Professional Digital Pack",
     price: "€161",
     tag: "Special offer",
   },
@@ -107,6 +107,11 @@ export default function ProductPage() {
             <p className="mt-6 text-xl leading-9 text-white/75">
               Premium digital learning pack with structured guides, templates,
               worksheets, checklists and planning resources for personal study.
+              <br /><br />
+              By purchasing, you agree to our{" "}
+              <Link href="/rules" className="underline">terms</Link>,{" "}
+              <Link href="/delivery" className="underline">delivery</Link> and{" "}
+              <Link href="/refund-policy" className="underline">refund policy</Link>.
             </p>
 
             <p className="mt-8 text-6xl font-black text-[#9c7cff]">{product.price}</p>
@@ -142,28 +147,6 @@ export default function ProductPage() {
             {["PDF guides", "Worksheets", "Study planner", "Checklists", "Templates", "Progress tracker"].map((x) => (
               <div key={x} className="rounded-[14px] bg-white p-5 font-bold shadow-sm">
                 ✓ {x}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-8 py-24">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-5xl font-black">FAQ</h2>
-
-          <div className="mt-10 space-y-5">
-            {faq.map(([q, a], i) => (
-              <div key={q} className="rounded-[10px] border bg-white/50">
-                <button
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="flex w-full justify-between px-8 py-7 text-left text-2xl"
-                >
-                  <span>{q}</span>
-                  <span>{openFaq === i ? "−" : "⌄"}</span>
-                </button>
-
-                {openFaq === i && <p className="px-8 pb-7 text-lg text-black/60">{a}</p>}
               </div>
             ))}
           </div>
@@ -212,17 +195,6 @@ export default function ProductPage() {
           </aside>
         </div>
       )}
-
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t bg-white p-4">
-        <div>
-          <p className="font-bold">{product.name}</p>
-          <p className="text-black/60">{product.price}</p>
-        </div>
-
-        <button onClick={() => setCart(true)} className="rounded-xl bg-[#6541df] px-6 py-3 font-bold text-white">
-          Buy now
-        </button>
-      </div>
     </main>
   );
 }
