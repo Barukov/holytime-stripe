@@ -50,20 +50,26 @@ export async function POST(req: Request) {
     const eventType = event.type;
     const data: any = event.data || {};
 
-    console.log("DODO EVENT:", eventType);
-    console.log("DODO DATA:", JSON.stringify(data, null, 2));
-
-    const transactionId =
+    const paymentId =
       data.id ||
-      data.transaction_id ||
       data.payment_id ||
+      data.transaction_id ||
+      data.checkout_id ||
       "unknown";
 
-    if (processedEvents.has(transactionId)) {
+    const eventKey = `${eventType}_${paymentId}`;
+
+    if (processedEvents.has(eventKey)) {
       return new Response("OK", { status: 200 });
     }
 
-    processedEvents.add(transactionId);
+    processedEvents.add(eventKey);
+
+    const status =
+      data.status ||
+      data.payment_status ||
+      data.transaction_status ||
+      "unknown";
 
     const productId =
       data.product_id ||
@@ -124,6 +130,7 @@ export async function POST(req: Request) {
       data.error_code ||
       data.error_message ||
       data.failure_reason ||
+      data.decline_reason ||
       data.status ||
       "unknown";
 
@@ -132,7 +139,15 @@ export async function POST(req: Request) {
       : new Date().toLocaleString("en-GB");
 
     if (eventType === "payment.failed") {
-      await sendTelegram(`❌ <b>PAYMENT FAILED</b>
+      if (
+        status === "succeeded" ||
+        status === "completed" ||
+        status === "paid"
+      ) {
+        return new Response("OK", { status: 200 });
+      }
+
+      await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
 🌐 <b>Website:</b> holytime.space
 
 👤 <b>Email:</b> ${email}
@@ -141,7 +156,7 @@ export async function POST(req: Request) {
 🌍 <b>Country:</b> ${country}
 📍 <b>Address:</b> ${address}
 ⚠️ <b>Reason:</b> ${declineReason}
-🧾 <b>ID:</b> ${transactionId}
+🧾 <b>ID:</b> ${paymentId}
 🕒 <b>Date:</b> ${date}`);
 
       return new Response("OK", { status: 200 });
@@ -160,7 +175,7 @@ export async function POST(req: Request) {
 💳 <b>Payment:</b> ${paymentMethod}
 🌍 <b>Country:</b> ${country}
 📍 <b>Address:</b> ${address}
-🧾 <b>ID:</b> ${transactionId}
+🧾 <b>ID:</b> ${paymentId}
 🕒 <b>Date:</b> ${date}`);
 
     const downloadLink = PRODUCT_LINKS[productId];
