@@ -13,29 +13,28 @@ const PRODUCT_LINKS: Record<string, string> = {
 
 const processedEvents = new Set<string>();
 
-async function sendTelegram(text: string) {
+// 🔥 РАЗДЕЛЕНИЕ ПО ДОМЕНАМ
+async function sendTelegram(text: string, host: string) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-
-  const chatIds = [
-    "-1003808961913",
-    "-1003983054033",
-  ];
-
   if (!botToken) return;
 
-  for (const chatId of chatIds) {
-    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: "HTML",
-      }),
-    });
-  }
+  const chatId =
+    host.includes("holytime.business")
+      ? "-1003983054033" // business группа
+      : "-1003808961913"; // space группа
+
+  await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: "HTML",
+    }),
+  });
 }
 
+// 🔥 2 webhook ключа
 async function unwrapDodoWebhook(rawBody: string, headers: any) {
   const webhookKeys = [
     process.env.DODO_WEBHOOK_KEY_SPACE,
@@ -50,12 +49,10 @@ async function unwrapDodoWebhook(rawBody: string, headers: any) {
       });
 
       return await dodo.webhooks.unwrap(rawBody, { headers });
-    } catch (err) {
-      // пробуем следующий ключ
-    }
+    } catch {}
   }
 
-  throw new Error("No matching Dodo webhook signature");
+  throw new Error("Invalid webhook signature");
 }
 
 export async function POST(req: Request) {
@@ -84,7 +81,6 @@ export async function POST(req: Request) {
     if (processedEvents.has(eventKey)) {
       return new Response("OK", { status: 200 });
     }
-
     processedEvents.add(eventKey);
 
     const status =
@@ -161,6 +157,7 @@ export async function POST(req: Request) {
 
     const host = req.headers.get("host") || "unknown";
 
+    // ❌ FAILED
     if (eventType === "payment.failed") {
       if (
         status === "succeeded" ||
@@ -181,7 +178,7 @@ export async function POST(req: Request) {
 📍 <b>Address:</b> ${address}
 ⚠️ <b>Reason:</b> ${declineReason}
 🧾 <b>ID:</b> ${paymentId}
-🕒 <b>Date:</b> ${date}`);
+🕒 <b>Date:</b> ${date}`, host);
 
       return new Response("OK", { status: 200 });
     }
@@ -190,6 +187,7 @@ export async function POST(req: Request) {
       return new Response("OK", { status: 200 });
     }
 
+    // ✅ SUCCESS
     await sendTelegram(`💸 <b>PAYMENT SUCCESSFUL</b>
 
 🌐 <b>Website:</b> ${host}
@@ -201,7 +199,7 @@ export async function POST(req: Request) {
 🌍 <b>Country:</b> ${country}
 📍 <b>Address:</b> ${address}
 🧾 <b>ID:</b> ${paymentId}
-🕒 <b>Date:</b> ${date}`);
+🕒 <b>Date:</b> ${date}`, host);
 
     const downloadLink = PRODUCT_LINKS[productId];
 
@@ -222,6 +220,7 @@ export async function POST(req: Request) {
     });
 
     return new Response("OK", { status: 200 });
+
   } catch (err) {
     console.error("Dodo webhook error:", err);
     return new Response("OK", { status: 200 });

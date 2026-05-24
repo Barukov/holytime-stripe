@@ -20,6 +20,16 @@ const products: any = {
     price: "€500",
     tag: "Best value",
   },
+  product159: {
+    name: "Learning Pack 159",
+    price: "€159",
+    tag: "Special offer",
+  },
+  product161: {
+    name: "Learning Pack 161",
+    price: "€161",
+    tag: "Special offer",
+  },
 };
 
 const faq = [
@@ -198,7 +208,6 @@ export default function ProductPage() {
 
             <p className="mt-4 text-center text-xs text-black/40">
               Secure checkout powered by Dodo Payments
-
             </p>
           </aside>
         </div>
