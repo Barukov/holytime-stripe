@@ -36,18 +36,23 @@ async function sendTelegram(text: string, sourceDomain: string) {
 
 async function unwrapDodoWebhook(rawBody: string, headers: any) {
   const webhookKeys = [
-    process.env.DODO_WEBHOOK_KEY_SPACE,
-    process.env.DODO_WEBHOOK_KEY_BUSINESS,
-  ].filter(Boolean);
+    { key: process.env.DODO_WEBHOOK_KEY_SPACE, source: "space" },
+    { key: process.env.DODO_WEBHOOK_KEY_BUSINESS, source: "business" },
+  ].filter((x) => x.key);
 
-  for (const webhookKey of webhookKeys) {
+  for (const item of webhookKeys) {
     try {
       const dodo = new DodoPayments({
         bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
-        webhookKey: webhookKey!,
+        webhookKey: item.key!,
       });
 
-      return await dodo.webhooks.unwrap(rawBody, { headers });
+      const event = await dodo.webhooks.unwrap(rawBody, { headers });
+
+      return {
+        event,
+        webhookSource: item.source,
+      };
     } catch {}
   }
 
@@ -64,7 +69,7 @@ export async function POST(req: Request) {
       "webhook-timestamp": req.headers.get("webhook-timestamp") ?? "",
     };
 
-    const event = await unwrapDodoWebhook(rawBody, headers);
+    const { event, webhookSource } = await unwrapDodoWebhook(rawBody, headers);
 
     const eventType = event.type;
     const data: any = event.data || {};
@@ -75,19 +80,26 @@ export async function POST(req: Request) {
       data.transaction_id ||
       "unknown";
 
-    const eventKey = `${eventType}_${paymentId}`;
+    const sourceDomain =
+      data.metadata?.sourceDomain ||
+      req.headers.get("host") ||
+      "unknown";
+
+    const paymentSource = sourceDomain.includes("holytime.business")
+      ? "business"
+      : "space";
+
+    if (paymentSource !== webhookSource) {
+      return new Response("OK", { status: 200 });
+    }
+
+    const eventKey = `${eventType}_${paymentId}_${paymentSource}`;
 
     if (processedEvents.has(eventKey)) {
       return new Response("OK", { status: 200 });
     }
 
     processedEvents.add(eventKey);
-
-    const sourceDomain =
-      data.metadata?.sourceDomain ||
-      data.metadata?.domain ||
-      req.headers.get("host") ||
-      "unknown";
 
     const status =
       data.status ||
@@ -163,7 +175,7 @@ export async function POST(req: Request) {
         return new Response("OK", { status: 200 });
       }
 
-     await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
+      await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
 
 🌐 <b>Website:</b> ${sourceDomain}
 
