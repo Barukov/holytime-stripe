@@ -18,21 +18,30 @@ const PRODUCT_LINKS: Record<string, string> = {
 
 const processedEvents = new Set<string>();
 
+// 🔥 1 БОТ → 2 ГРУППЫ
 async function sendTelegram(text: string) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  if (!botToken || !chatId) return;
+  const chatIds = [
+    "-1003808961913",
+    "-1003983054033",
+  ];
 
-  await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "HTML",
-    }),
-  });
+  if (!botToken) return;
+
+  for (const chatId of chatIds) {
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+      }),
+    });
+  }
 }
 
 export async function POST(req: Request) {
@@ -54,15 +63,14 @@ export async function POST(req: Request) {
       data.id ||
       data.payment_id ||
       data.transaction_id ||
-      data.checkout_id ||
       "unknown";
 
     const eventKey = `${eventType}_${paymentId}`;
 
+    // 🔒 анти-дубли
     if (processedEvents.has(eventKey)) {
       return new Response("OK", { status: 200 });
     }
-
     processedEvents.add(eventKey);
 
     const status =
@@ -143,7 +151,7 @@ export async function POST(req: Request) {
       ? new Date(data.created_at).toLocaleString("en-GB")
       : new Date().toLocaleString("en-GB");
 
-    // ❌ FAILED (но не если уже success)
+    // ❌ FAILED (но не если уже SUCCESS)
     if (eventType === "payment.failed") {
       if (
         status === "succeeded" ||
@@ -154,7 +162,8 @@ export async function POST(req: Request) {
       }
 
       await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
-🌐 <b>Website:</b> holytime.space
+
+🌐 <b>Website:</b> ${req.headers.get("host")}
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
@@ -174,7 +183,8 @@ export async function POST(req: Request) {
 
     // ✅ SUCCESS
     await sendTelegram(`💸 <b>PAYMENT SUCCESSFUL</b>
-🌐 <b>Website:</b> holytime.space
+
+🌐 <b>Website:</b> ${req.headers.get("host")}
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
