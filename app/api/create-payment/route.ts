@@ -7,7 +7,6 @@ const DODO_PRODUCT_IDS: Record<string, string> = {
   starter: "pdt_0Nejk64sUSamH5UNL2Ktw",
   advanced: "pdt_0NejkFOBCGn3V16i67R5T",
   premium: "pdt_0NejkOL94xZvv7363UZMW",
-
   product159: "pdt_0NfXXhYoH1yMwbz8noIAN",
   product161: "pdt_0NfXXtK5DhzulEse6qBlL",
 };
@@ -22,11 +21,8 @@ export async function POST(req: Request) {
 
     const dodoProductId = DODO_PRODUCT_IDS[String(productId)];
 
-    if (!dodoProductId || dodoProductId.includes("ВСТАВЬ_ID")) {
-      return NextResponse.json(
-        { error: "Product not configured" },
-        { status: 400 }
-      );
+    if (!dodoProductId) {
+      return NextResponse.json({ error: "Product not configured" }, { status: 400 });
     }
 
     const apiKey = process.env.DODO_PAYMENTS_API_KEY;
@@ -35,6 +31,8 @@ export async function POST(req: Request) {
     if (!apiKey || !siteUrl) {
       return NextResponse.json({ error: "Missing env" }, { status: 500 });
     }
+
+    const sourceDomain = req.headers.get("host") || siteUrl;
 
     const res = await fetch("https://live.dodopayments.com/checkouts", {
       method: "POST",
@@ -53,6 +51,10 @@ export async function POST(req: Request) {
           email,
           name: email,
         },
+        metadata: {
+          sourceDomain,
+          productId,
+        },
         return_url: `${siteUrl}/success`,
       }),
     });
@@ -61,10 +63,7 @@ export async function POST(req: Request) {
 
     if (!res.ok) {
       console.error("Dodo error:", data);
-      return NextResponse.json(
-        { error: "Dodo failed", details: data },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Dodo failed", details: data }, { status: 500 });
     }
 
     return NextResponse.json({

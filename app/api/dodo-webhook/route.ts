@@ -9,19 +9,19 @@ const PRODUCT_LINKS: Record<string, string> = {
   starter: "https://drive.google.com/your-starter-file-link",
   advanced: "https://drive.google.com/your-advanced-file-link",
   premium: "https://drive.google.com/your-premium-file-link",
+  product159: "https://drive.google.com/your-product-159-link",
+  product161: "https://drive.google.com/your-product-161-link",
 };
 
 const processedEvents = new Set<string>();
 
-// 🔥 РАЗДЕЛЕНИЕ ПО ДОМЕНАМ
-async function sendTelegram(text: string, host: string) {
+async function sendTelegram(text: string, sourceDomain: string) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) return;
 
-  const chatId =
-    host.includes("holytime.business")
-      ? "-1003983054033" // business группа
-      : "-1003808961913"; // space группа
+  const chatId = sourceDomain.includes("holytime.business")
+    ? "-1003983054033"
+    : "-1003808961913";
 
   await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
     method: "POST",
@@ -34,7 +34,6 @@ async function sendTelegram(text: string, host: string) {
   });
 }
 
-// 🔥 2 webhook ключа
 async function unwrapDodoWebhook(rawBody: string, headers: any) {
   const webhookKeys = [
     process.env.DODO_WEBHOOK_KEY_SPACE,
@@ -81,7 +80,14 @@ export async function POST(req: Request) {
     if (processedEvents.has(eventKey)) {
       return new Response("OK", { status: 200 });
     }
+
     processedEvents.add(eventKey);
+
+    const sourceDomain =
+      data.metadata?.sourceDomain ||
+      data.metadata?.domain ||
+      req.headers.get("host") ||
+      "unknown";
 
     const status =
       data.status ||
@@ -90,10 +96,10 @@ export async function POST(req: Request) {
       "unknown";
 
     const productId =
+      data.metadata?.productId ||
       data.product_id ||
       data.product?.id ||
-      data.product_cart?.[0]?.product_id ||
-      data.metadata?.productId;
+      data.product_cart?.[0]?.product_id;
 
     const productName =
       data.product?.name ||
@@ -133,10 +139,7 @@ export async function POST(req: Request) {
       "unknown";
 
     const rawAmount = data.total_amount || data.amount || 0;
-
-    const amount = rawAmount
-      ? (rawAmount / 100).toFixed(2)
-      : "?";
+    const amount = rawAmount ? (rawAmount / 100).toFixed(2) : "?";
 
     const currency =
       data.currency ||
@@ -155,21 +158,14 @@ export async function POST(req: Request) {
       ? new Date(data.created_at).toLocaleString("en-GB")
       : new Date().toLocaleString("en-GB");
 
-    const host = req.headers.get("host") || "unknown";
-
-    // ❌ FAILED
     if (eventType === "payment.failed") {
-      if (
-        status === "succeeded" ||
-        status === "completed" ||
-        status === "paid"
-      ) {
+      if (status === "succeeded" || status === "completed" || status === "paid") {
         return new Response("OK", { status: 200 });
       }
 
       await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
 
-🌐 <b>Website:</b> ${host}
+🌐 <b>Website:</b> ${sourceDomain}
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
@@ -178,7 +174,7 @@ export async function POST(req: Request) {
 📍 <b>Address:</b> ${address}
 ⚠️ <b>Reason:</b> ${declineReason}
 🧾 <b>ID:</b> ${paymentId}
-🕒 <b>Date:</b> ${date}`, host);
+🕒 <b>Date:</b> ${date}`, sourceDomain);
 
       return new Response("OK", { status: 200 });
     }
@@ -187,10 +183,9 @@ export async function POST(req: Request) {
       return new Response("OK", { status: 200 });
     }
 
-    // ✅ SUCCESS
     await sendTelegram(`💸 <b>PAYMENT SUCCESSFUL</b>
 
-🌐 <b>Website:</b> ${host}
+🌐 <b>Website:</b> ${sourceDomain}
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
@@ -199,7 +194,7 @@ export async function POST(req: Request) {
 🌍 <b>Country:</b> ${country}
 📍 <b>Address:</b> ${address}
 🧾 <b>ID:</b> ${paymentId}
-🕒 <b>Date:</b> ${date}`, host);
+🕒 <b>Date:</b> ${date}`, sourceDomain);
 
     const downloadLink = PRODUCT_LINKS[productId];
 
@@ -220,7 +215,6 @@ export async function POST(req: Request) {
     });
 
     return new Response("OK", { status: 200 });
-
   } catch (err) {
     console.error("Dodo webhook error:", err);
     return new Response("OK", { status: 200 });
