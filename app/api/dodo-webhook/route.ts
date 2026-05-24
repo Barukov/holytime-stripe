@@ -163,12 +163,13 @@ export async function POST(req: Request) {
         return new Response("OK", { status: 200 });
       }
 
-      await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
+     await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
 
 🌐 <b>Website:</b> ${sourceDomain}
 
 👤 <b>Email:</b> ${email}
 📦 <b>Product:</b> ${productName}
+💰 <b>Amount:</b> ${amount} ${currency}
 💳 <b>Payment:</b> ${paymentMethod}
 🌍 <b>Country:</b> ${country}
 📍 <b>Address:</b> ${address}
