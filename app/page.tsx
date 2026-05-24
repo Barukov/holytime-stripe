@@ -7,6 +7,10 @@ const products = [
   ["starter", "Starter Learning Pack", "€219", "PDF guides, checklists, notes templates and study planners."],
   ["advanced", "Advanced Learning Pack", "€250", "Worksheets, examples, progress trackers and structured resources."],
   ["premium", "Premium Resource Bundle", "€500", "Full library with guides, templates, worksheets and bonuses."],
+
+  // 🔥 НОВЫЕ НОРМ НАЗВАНИЯ
+  ["product159", "Essential Learning Pack", "€159", "Core guides, templates and structured study resources."],
+  ["product161", "Pro Learning Pack", "€161", "Advanced worksheets, trackers and premium structured materials."],
 ];
 
 const faq = [
@@ -96,7 +100,6 @@ export default function Page() {
               className="aspect-video w-full"
               src="https://www.youtube.com/embed/NEUsYT__hRc"
               title="Product preview"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
@@ -154,18 +157,18 @@ export default function Page() {
 
           <div className="space-y-5">
             {faq.map(([q, a], i) => (
-              <div key={q} className="rounded-xl border border-[#090522] bg-white/50 transition hover:bg-white">
+              <div key={q} className="rounded-xl border border-[#090522] bg-white/50">
                 <button
                   onClick={() => setOpen(open === i ? null : i)}
                   className="flex w-full justify-between px-8 py-7 text-left text-2xl"
                 >
                   {q}
-                  <span className={`transition ${open === i ? "rotate-180" : ""}`}>⌄</span>
+                  <span>{open === i ? "−" : "⌄"}</span>
                 </button>
 
-                <div className={`overflow-hidden transition-all duration-300 ${open === i ? "max-h-40 px-8 pb-7" : "max-h-0 px-8"}`}>
-                  <p className="text-lg leading-8 text-black/60">{a}</p>
-                </div>
+                {open === i && (
+                  <p className="px-8 pb-7 text-lg leading-8 text-black/60">{a}</p>
+                )}
               </div>
             ))}
           </div>

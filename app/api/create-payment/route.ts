@@ -7,16 +7,26 @@ const DODO_PRODUCT_IDS: Record<string, string> = {
   starter: "pdt_0Nejk64sUSamH5UNL2Ktw",
   advanced: "pdt_0NejkFOBCGn3V16i67R5T",
   premium: "pdt_0NejkOL94xZvv7363UZMW",
+
+  product159: "pdt_ВСТАВЬ_ID_159",
+  product161: "pdt_ВСТАВЬ_ID_161",
 };
 
 export async function POST(req: Request) {
   try {
     const { email, productId } = await req.json();
 
-    const dodoProductId = DODO_PRODUCT_IDS[productId];
-
-    if (!email || !dodoProductId) {
+    if (!email || !productId) {
       return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    }
+
+    const dodoProductId = DODO_PRODUCT_IDS[String(productId)];
+
+    if (!dodoProductId || dodoProductId.includes("ВСТАВЬ_ID")) {
+      return NextResponse.json(
+        { error: "Product not configured" },
+        { status: 400 }
+      );
     }
 
     const apiKey = process.env.DODO_PAYMENTS_API_KEY;
