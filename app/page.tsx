@@ -13,9 +13,9 @@ const products = [
 
 const faq = [
   ["What do I receive?", "PDF guides, templates, worksheets, planners and checklists."],
-  ["How does delivery work?", "After payment, delivery goes to your email."],
-  ["Is payment secure?", "Yes, checkout is processed through Dodo Payments."],
-  ["Can I get a refund?", "Digital products are not refundable after delivery."],
+  ["How is it delivered?", "Delivery is made by email after successful payment confirmation."],
+  ["Can I get a refund?", "We offer a 14-day refund policy. If you are not satisfied, you can request a refund within 14 days of purchase."],
+  ["Is payment secure?", "Yes, payment is processed securely through Dodo checkout."],
 ];
 
 export default function Page() {
