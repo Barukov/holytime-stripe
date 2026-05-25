@@ -216,16 +216,24 @@ export async function POST(req: Request) {
     }
 
     await resend.emails.send({
-      from: "Holytime <supportholytime@gmail.com>",
-      to: email,
-      subject: `Your product: ${productName}`,
-      html: `
-        <h2>Thank you for your purchase</h2>
-        <p>Your product is ready:</p>
-        <p><strong>${productName}</strong></p>
-        <a href="${downloadLink}">Download here</a>
-      `,
-    });
+  from: "Holytime <support@holytime.space>",
+  to: email,
+  subject: `Your product: ${productName}`,
+  html: `
+    <h2>Thank you for your purchase 💜</h2>
+    <p>Your product is ready:</p>
+    <p><strong>${productName}</strong></p>
+
+    <p>
+      <a href="${downloadLink}" 
+      style="display:inline-block;padding:12px 20px;
+      background:#6541df;color:white;border-radius:8px;
+      text-decoration:none;font-weight:bold;">
+      Download your product
+      </a>
+    </p>
+  `,
+});
 
     return new Response("OK", { status: 200 });
   } catch (err) {
