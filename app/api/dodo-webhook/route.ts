@@ -11,6 +11,16 @@ const PRODUCT_LINKS: Record<string, string> = {
   premium: "https://drive.google.com/drive/folders/1RqTD_vuq2LvYWH-vpQBAk2d73X6-W4ny?usp=sharing",
   product159: "https://drive.google.com/drive/folders/1elClIcBLP3FE5gtuHUFwBBWBoFfN5o6l?usp=sharing",
   product161: "https://drive.google.com/drive/folders/1baNo2BVX6oY5mYoqahy0hmbXu1wkzGbK?usp=sharing",
+  product199: "https://drive.google.com/file/d/1ZHHXBAZ3Gu8oHkp2B215MkUl5IXtEqft/view?usp=sharing",
+};
+
+const PRODUCT_NAMES: Record<string, string> = {
+  starter: "Starter Pack",
+  advanced: "Advanced  Pack",
+  premium: "Premium Bundle",
+  product159: "Essential Pack",
+  product161: "Professional Pack",
+  product199: "Elite Trading Pack",
 };
 
 const processedEvents = new Set<string>();
@@ -114,6 +124,7 @@ export async function POST(req: Request) {
       data.product_cart?.[0]?.product_id;
 
     const productName =
+      PRODUCT_NAMES[productId] ||
       data.product?.name ||
       data.metadata?.productName ||
       "Digital product";
@@ -216,24 +227,24 @@ export async function POST(req: Request) {
     }
 
     await resend.emails.send({
-  from: "Holytime <support@holytime.space>",
-  to: email,
-  subject: `Your product: ${productName}`,
-  html: `
-    <h2>Thank you for your purchase 💜</h2>
-    <p>Your product is ready:</p>
-    <p><strong>${productName}</strong></p>
+      from: "Holytime <support@holytime.space>",
+      to: email,
+      subject: `Your product: ${productName}`,
+      html: `
+        <h2>Thank you for your purchase 💜</h2>
+        <p>Your product is ready:</p>
+        <p><strong>${productName}</strong></p>
 
-    <p>
-      <a href="${downloadLink}" 
-      style="display:inline-block;padding:12px 20px;
-      background:#6541df;color:white;border-radius:8px;
-      text-decoration:none;font-weight:bold;">
-      Download your product
-      </a>
-    </p>
-  `,
-});
+        <p>
+          <a href="${downloadLink}"
+          style="display:inline-block;padding:12px 20px;
+          background:#6541df;color:white;border-radius:8px;
+          text-decoration:none;font-weight:bold;">
+          Download your product
+          </a>
+        </p>
+      `,
+    });
 
     return new Response("OK", { status: 200 });
   } catch (err) {

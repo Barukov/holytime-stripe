@@ -9,6 +9,7 @@ const DODO_PRODUCT_IDS: Record<string, string> = {
   premium: "pdt_0NejkOL94xZvv7363UZMW",
   product159: "pdt_0NfXXhYoH1yMwbz8noIAN",
   product161: "pdt_0NfXXtK5DhzulEse6qBlL",
+  product199: "pdt_0NfaucIxgvkVdSRZe9xot",
 };
 
 export async function POST(req: Request) {
@@ -22,7 +23,10 @@ export async function POST(req: Request) {
     const dodoProductId = DODO_PRODUCT_IDS[String(productId)];
 
     if (!dodoProductId) {
-      return NextResponse.json({ error: "Product not configured" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Product not configured" },
+        { status: 400 }
+      );
     }
 
     const apiKey = process.env.DODO_PAYMENTS_API_KEY;
@@ -63,7 +67,10 @@ export async function POST(req: Request) {
 
     if (!res.ok) {
       console.error("Dodo error:", data);
-      return NextResponse.json({ error: "Dodo failed", details: data }, { status: 500 });
+      return NextResponse.json(
+        { error: "Dodo failed", details: data },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({

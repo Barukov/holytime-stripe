@@ -5,6 +5,21 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 
 const products: any = {
+  product159: {
+    name: "Essential Digital Pack",
+    price: "€159",
+    tag: "Special offer",
+  },
+  product161: {
+    name: "Professional Digital Pack",
+    price: "€161",
+    tag: "Special offer",
+  },
+  product199: {
+    name: " Elite Trading Pack",
+    price: "€199",
+    tag: "Best value",
+  },
   starter: {
     name: "Starter Digital Pack",
     price: "€219",
@@ -18,24 +33,14 @@ const products: any = {
   premium: {
     name: "Premium Digital Bundle",
     price: "€500",
-    tag: "Best value",
-  },
-  product159: {
-    name: "Essential Digital Pack",
-    price: "€159",
-    tag: "Special offer",
-  },
-  product161: {
-    name: "Professional Digital Pack",
-    price: "€161",
-    tag: "Special offer",
+    tag: "Premium",
   },
 };
 
 const faq = [
   ["What do I receive?", "You receive PDF guides, templates, worksheets, planners and checklists."],
   ["How is it delivered?", "Delivery is made by email after successful payment confirmation."],
-  ["Can I get a refund?", "Refunds are not available after digital delivery is completed."],
+  ["Can I get a refund?", "We offer a 14-day refund policy. If you are not satisfied, you can request a refund within 14 days of purchase."],
   ["Is payment secure?", "Yes, payment is processed securely through Dodo checkout."],
 ];
 
@@ -45,7 +50,6 @@ export default function ProductPage() {
 
   const [cart, setCart] = useState(false);
   const [email, setEmail] = useState("");
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [loading, setLoading] = useState(false);
 
   if (!product) return <main className="p-10">Product not found</main>;
@@ -60,13 +64,8 @@ export default function ProductPage() {
     try {
       const res = await fetch("/api/create-payment", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          productId: slug,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, productId: slug }),
       });
 
       const data = await res.json();
