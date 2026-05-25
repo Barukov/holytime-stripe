@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
 const PRODUCT_LINKS: Record<string, string> = {
-  starter: "https://drive.google.com/your-starter-file-link",
+  starter: "https://drive.google.com/drive/folders/1gJW0fFRcY1O1JlnePnqUp2gTm8XUU9kh?usp=sharing",
   advanced: "https://drive.google.com/your-advanced-file-link",
   premium: "https://drive.google.com/your-premium-file-link",
   product159: "https://drive.google.com/your-product-159-link",
