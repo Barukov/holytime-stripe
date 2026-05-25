@@ -6,7 +6,7 @@ import { useState } from "react";
 const products = [
   ["product159", "Essential Digital Pack", "€159", "Core guides, templates and study resources."],
   ["product161", "Professional Digital Pack", "€161", "Advanced worksheets, trackers and premium materials."],
-  ["product199", " Elite Trading Pack", "€199", "Advanced  learning materials, premium strategies, technical analysis guides and structured trading resources."],
+  ["product199", "Elite Trading Pack", "€199", "Advanced learning materials, premium strategies, technical analysis guides and structured trading resources."],
   ["starter", "Starter Digital Pack", "€219", "PDF guides, checklists, notes templates and study planners."],
   ["advanced", "Advanced Digital Pack", "€250", "Worksheets, examples, progress trackers and structured resources."],
   ["premium", "Premium Digital Bundle", "€500", "Full library with guides, templates, worksheets and bonuses."],
@@ -112,7 +112,7 @@ export default function Page() {
           </h2>
 
           <div className="mt-14 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {products.map(([slug, name, price, desc], i) => (
+            {products.map(([slug, name, price, desc]) => (
               <Link
                 key={slug}
                 href={`/product/${slug}`}
@@ -185,6 +185,26 @@ export default function Page() {
           </div>
         </div>
       </footer>
+
+      <style jsx global>{`
+        @keyframes fade {
+          from { opacity: 0; transform: translateY(28px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-18px); }
+        }
+
+        .animate-fade {
+          animation: fade .8s ease-out both;
+        }
+
+        .animate-float {
+          animation: float 4s ease-in-out infinite;
+        }
+      `}</style>
     </main>
   );
 }
