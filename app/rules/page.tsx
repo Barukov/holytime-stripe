@@ -17,12 +17,12 @@ export default function RulesPage() {
 
           <div className="mt-10 space-y-5">
             {[
-  "Products are digital and delivered by email.",
-  "Enter the correct email before payment.",
-  "Do not share or resell purchased files.",
-  "We offer a 14-day refund policy for all purchases.",
-  "Refund requests are reviewed after contact with support.",
-  "For delivery issues, contact support.",
+  "All products are digital and delivered instantly after purchase via email.",
+  "Please make sure your email is correct before completing the payment.",
+  "Sharing, reselling, or distributing purchased materials is strictly prohibited.",
+  "We offer a 14-day refund policy if you are not satisfied with your purchase.",
+  "Refund requests must be submitted through our support team with order details.",
+  "For any delivery or access issues, please contact support.",
 ].map((x) => (
               <div key={x} className="rounded-[20px] bg-[#f3f0ff] p-5 text-lg font-bold">
                 ✓ {x}
