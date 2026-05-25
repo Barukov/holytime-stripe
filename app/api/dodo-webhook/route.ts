@@ -7,10 +7,10 @@ const resend = new Resend(process.env.RESEND_API_KEY!);
 
 const PRODUCT_LINKS: Record<string, string> = {
   starter: "https://drive.google.com/drive/folders/1gJW0fFRcY1O1JlnePnqUp2gTm8XUU9kh?usp=sharing",
-  advanced: "https://drive.google.com/your-advanced-file-link",
-  premium: "https://drive.google.com/your-premium-file-link",
-  product159: "https://drive.google.com/your-product-159-link",
-  product161: "https://drive.google.com/your-product-161-link",
+  advanced: "https://drive.google.com/file/d/102z289XsEfuHbrOvPazAhWjE1VE4HgfK/view?usp=sharing",
+  premium: "https://drive.google.com/drive/folders/1RqTD_vuq2LvYWH-vpQBAk2d73X6-W4ny?usp=sharing",
+  product159: "https://drive.google.com/drive/folders/1elClIcBLP3FE5gtuHUFwBBWBoFfN5o6l?usp=sharing",
+  product161: "https://drive.google.com/drive/folders/1baNo2BVX6oY5mYoqahy0hmbXu1wkzGbK?usp=sharing",
 };
 
 const processedEvents = new Set<string>();
