@@ -216,7 +216,7 @@ export async function POST(req: Request) {
     }
 
     await resend.emails.send({
-      from: "Holytime Learning <onboarding@resend.dev>",
+      from: "Holytime <supportholytime@gmail.com>",
       to: email,
       subject: `Your product: ${productName}`,
       html: `
