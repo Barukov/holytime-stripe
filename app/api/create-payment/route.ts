@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     const sourceDomain = req.headers.get("host") || siteUrl;
 
-    const res = await fetch("https://live.polarpayments.com/checkouts", {
+    const res = await fetch("https://api.polar.sh/v1/checkouts", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
