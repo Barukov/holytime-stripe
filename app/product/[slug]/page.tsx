@@ -27,7 +27,7 @@ const products: any = {
   },
   advanced: {
     name: "Advanced Digital Pack",
-    price: "€249",
+    price: "€250",
     tag: "Most popular",
   },
   premium: {
