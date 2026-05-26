@@ -1,4 +1,3 @@
-import DodoPayments from "dodopayments";
 import { Resend } from "resend";
 
 export const runtime = "nodejs";
@@ -16,11 +15,11 @@ const PRODUCT_LINKS: Record<string, string> = {
 
 const PRODUCT_NAMES: Record<string, string> = {
   starter: "Starter Pack",
-  advanced: "Advanced  Pack",
+  advanced: "Advanced Pack",
   premium: "Premium Bundle",
   product159: "Essential Pack",
   product161: "Professional Pack",
-  product199: "Elite  Pack",
+  product199: "Elite Pack",
 };
 
 const processedEvents = new Set<string>();
@@ -44,66 +43,28 @@ async function sendTelegram(text: string, sourceDomain: string) {
   });
 }
 
-async function unwrapDodoWebhook(rawBody: string, headers: any) {
-  const webhookKeys = [
-    { key: process.env.DODO_WEBHOOK_KEY_SPACE, source: "space" },
-    { key: process.env.DODO_WEBHOOK_KEY_BUSINESS, source: "business" },
-  ].filter((x) => x.key);
-
-  for (const item of webhookKeys) {
-    try {
-      const dodo = new DodoPayments({
-        bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
-        webhookKey: item.key!,
-      });
-
-      const event = await dodo.webhooks.unwrap(rawBody, { headers });
-
-      return {
-        event,
-        webhookSource: item.source,
-      };
-    } catch {}
-  }
-
-  throw new Error("Invalid webhook signature");
-}
-
 export async function POST(req: Request) {
   try {
-    const rawBody = await req.text();
-
-    const headers = {
-      "webhook-id": req.headers.get("webhook-id") ?? "",
-      "webhook-signature": req.headers.get("webhook-signature") ?? "",
-      "webhook-timestamp": req.headers.get("webhook-timestamp") ?? "",
-    };
-
-    const { event, webhookSource } = await unwrapDodoWebhook(rawBody, headers);
+    const event = await req.json();
 
     const eventType = event.type;
     const data: any = event.data || {};
 
     const paymentId =
       data.id ||
-      data.payment_id ||
-      data.transaction_id ||
+      data.order_id ||
+      data.checkout_id ||
+      event.id ||
       "unknown";
+
+    const metadata = data.metadata || {};
 
     const sourceDomain =
-      data.metadata?.sourceDomain ||
+      metadata.sourceDomain ||
       req.headers.get("host") ||
-      "unknown";
+      "holytime.space";
 
-    const paymentSource = sourceDomain.includes("holytime.business")
-      ? "business"
-      : "space";
-
-    if (paymentSource !== webhookSource) {
-      return new Response("OK", { status: 200 });
-    }
-
-    const eventKey = `${eventType}_${paymentId}_${paymentSource}`;
+    const eventKey = `${eventType}_${paymentId}_${sourceDomain}`;
 
     if (processedEvents.has(eventKey)) {
       return new Response("OK", { status: 200 });
@@ -111,33 +72,33 @@ export async function POST(req: Request) {
 
     processedEvents.add(eventKey);
 
-    const status =
-      data.status ||
-      data.payment_status ||
-      data.transaction_status ||
-      "unknown";
+    const status = data.status || "paid";
 
     const productId =
-      data.metadata?.productId ||
+      metadata.productId ||
       data.product_id ||
       data.product?.id ||
-      data.product_cart?.[0]?.product_id;
+      data.products?.[0]?.id ||
+      "unknown";
 
     const productName =
       PRODUCT_NAMES[productId] ||
       data.product?.name ||
-      data.metadata?.productName ||
+      data.products?.[0]?.name ||
+      metadata.productName ||
       "Digital product";
 
     const email =
-      data.customer?.email ||
       data.customer_email ||
+      data.customer?.email ||
       data.customer_details?.email ||
-      data.metadata?.customerEmail ||
+      metadata.email ||
+      metadata.customerEmail ||
       "unknown";
 
     const addressData =
       data.billing_address ||
+      data.customer?.billing_address ||
       data.customer?.address ||
       {};
 
@@ -154,39 +115,46 @@ export async function POST(req: Request) {
         addressData.state,
         addressData.postal_code,
         country,
-      ].filter(Boolean).join(", ") || "unknown";
+      ]
+        .filter(Boolean)
+        .join(", ") || "unknown";
 
     const paymentMethod =
       data.payment_method ||
       data.payment_method_type ||
-      "unknown";
+      "card";
 
-    const rawAmount = data.total_amount || data.amount || 0;
+    const rawAmount =
+      data.total_amount ||
+      data.amount ||
+      data.subtotal_amount ||
+      0;
+
     const amount = rawAmount ? (rawAmount / 100).toFixed(2) : "?";
 
     const currency =
       data.currency ||
       data.currency_code ||
-      "";
+      "EUR";
 
     const declineReason =
       data.error_code ||
       data.error_message ||
       data.failure_reason ||
       data.decline_reason ||
-      data.status ||
+      status ||
       "unknown";
 
     const date = data.created_at
       ? new Date(data.created_at).toLocaleString("en-GB")
       : new Date().toLocaleString("en-GB");
 
-    if (eventType === "payment.failed") {
-      if (status === "succeeded" || status === "completed" || status === "paid") {
-        return new Response("OK", { status: 200 });
-      }
-
-      await sendTelegram(`⚠️ <b>PAYMENT ATTEMPT FAILED</b>
+    if (
+      eventType === "order.failed" ||
+      eventType === "checkout.failed" ||
+      eventType === "payment.failed"
+    ) {
+      await sendTelegram(`⚠️ <b>POLAR PAYMENT FAILED</b>
 
 🌐 <b>Website:</b> ${sourceDomain}
 
@@ -203,11 +171,11 @@ export async function POST(req: Request) {
       return new Response("OK", { status: 200 });
     }
 
-    if (eventType !== "payment.succeeded") {
+    if (eventType !== "order.paid") {
       return new Response("OK", { status: 200 });
     }
 
-    await sendTelegram(`💸 <b>PAYMENT SUCCESSFUL</b>
+    await sendTelegram(`💸 <b>POLAR PAYMENT SUCCESSFUL</b>
 
 🌐 <b>Website:</b> ${sourceDomain}
 
@@ -248,7 +216,7 @@ export async function POST(req: Request) {
 
     return new Response("OK", { status: 200 });
   } catch (err) {
-    console.error("Dodo webhook error:", err);
+    console.error("Polar webhook error:", err);
     return new Response("OK", { status: 200 });
   }
 }
