@@ -16,7 +16,7 @@ const faq = [
   ["What do I receive?", "PDF guides, templates, worksheets, planners and checklists."],
   ["How is it delivered?", "Delivery is made by email after successful payment confirmation."],
   ["Can I get a refund?", "We offer a 14-day refund policy. If you are not satisfied, you can request a refund within 14 days of purchase."],
-  ["Is payment secure?", "Yes, payment is processed securely through Dodo checkout."],
+  ["Is payment secure?", "Yes, payment is processed securely through Polar  checkout."],
 ];
 
 export default function Page() {

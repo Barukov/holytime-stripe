@@ -41,7 +41,7 @@ const faq = [
   ["What do I receive?", "You receive PDF guides, templates, worksheets, planners and checklists."],
   ["How is it delivered?", "Delivery is made by email after successful payment confirmation."],
   ["Can I get a refund?", "We offer a 14-day refund policy. If you are not satisfied, you can request a refund within 14 days of purchase."],
-  ["Is payment secure?", "Yes, payment is processed securely through Dodo checkout."],
+  ["Is payment secure?", "Yes, payment is processed securely through Polar  checkout."],
 ];
 
 export default function ProductPage() {
@@ -189,7 +189,7 @@ export default function ProductPage() {
             </button>
 
             <p className="mt-4 text-center text-xs text-black/40">
-              Secure checkout powered by Dodo Payments
+              Secure checkout powered by Polar Payments
             </p>
           </aside>
         </div>

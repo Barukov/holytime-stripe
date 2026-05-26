@@ -3,13 +3,13 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const DODO_PRODUCT_IDS: Record<string, string> = {
-  starter: "pdt_0Nejk64sUSamH5UNL2Ktw",
-  advanced: "pdt_0NejkFOBCGn3V16i67R5T",
-  premium: "pdt_0NejkOL94xZvv7363UZMW",
-  product159: "pdt_0NfXXhYoH1yMwbz8noIAN",
-  product161: "pdt_0NfXXtK5DhzulEse6qBlL",
-  product199: "pdt_0NfaucIxgvkVdSRZe9xot",
+const PolarPRODUCT_IDS: Record<string, string> = {
+  starter: "657ae4c9-c1ce-4dbc-9254-f4bc843447c1",
+  advanced: "55f7d7e3-35a6-4e53-bf59-27e0b685a05f",
+  premium: "6197789d-21bc-422d-951b-1bb41ef65e39",
+  product159: "25e6beaf-59c7-4277-8a01-5713627bf097",
+  product161: "a5d6c46e-dac2-4cb9-aad8-2c959f88b037",
+  product199: "02bc46cc-46d7-4643-bb06-2ab6fdecd69a",
 };
 
 export async function POST(req: Request) {
@@ -20,16 +20,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Bad request" }, { status: 400 });
     }
 
-    const dodoProductId = DODO_PRODUCT_IDS[String(productId)];
+    const polarProductId = PolarPRODUCT_IDS[String(productId)];
 
-    if (!dodoProductId) {
+    if (!polarProductId) {
       return NextResponse.json(
         { error: "Product not configured" },
         { status: 400 }
       );
     }
 
-    const apiKey = process.env.DODO_PAYMENTS_API_KEY;
+    const apiKey = process.env.POLAR_PAYMENTS_API_KEY;
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
     if (!apiKey || !siteUrl) {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     const sourceDomain = req.headers.get("host") || siteUrl;
 
-    const res = await fetch("https://live.dodopayments.com/checkouts", {
+    const res = await fetch("https://live.polarpayments.com/checkouts", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         product_cart: [
           {
-            product_id: dodoProductId,
+            product_id: polarProductId,
             quantity: 1,
           },
         ],
@@ -66,9 +66,9 @@ export async function POST(req: Request) {
     const data = await res.json();
 
     if (!res.ok) {
-      console.error("Dodo error:", data);
+      console.error("Polar error:", data);
       return NextResponse.json(
-        { error: "Dodo failed", details: data },
+        { error: "Polar failed", details: data },
         { status: 500 }
       );
     }
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       checkoutUrl: data.checkout_url,
     });
   } catch (error) {
-    console.error("Dodo checkout error:", error);
+    console.error("Polar checkout error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
