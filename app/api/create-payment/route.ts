@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const PolarPRODUCT_IDS: Record<string, string> = {
+const POLAR_PRODUCT_IDS: Record<string, string> = {
   starter: "657ae4c9-c1ce-4dbc-9254-f4bc843447c1",
   advanced: "55f7d7e3-35a6-4e53-bf59-27e0b685a05f",
   premium: "6197789d-21bc-422d-951b-1bb41ef65e39",
@@ -20,13 +20,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Bad request" }, { status: 400 });
     }
 
-    const polarProductId = PolarPRODUCT_IDS[String(productId)];
+    const polarProductId = POLAR_PRODUCT_IDS[String(productId)];
 
     if (!polarProductId) {
-      return NextResponse.json(
-        { error: "Product not configured" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Product not configured" }, { status: 400 });
     }
 
     const apiKey = process.env.POLAR_PAYMENTS_API_KEY;
@@ -45,21 +42,14 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        product_cart: [
-          {
-            product_id: polarProductId,
-            quantity: 1,
-          },
-        ],
-        customer: {
-          email,
-          name: email,
-        },
+        products: [polarProductId],
+        customer_email: email,
+        success_url: `${siteUrl}/success`,
         metadata: {
           sourceDomain,
           productId,
+          email,
         },
-        return_url: `${siteUrl}/success`,
       }),
     });
 
@@ -67,14 +57,11 @@ export async function POST(req: Request) {
 
     if (!res.ok) {
       console.error("Polar error:", data);
-      return NextResponse.json(
-        { error: "Polar failed", details: data },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Polar failed", details: data }, { status: 500 });
     }
 
     return NextResponse.json({
-      checkoutUrl: data.checkout_url,
+      checkoutUrl: data.checkout_url || data.url,
     });
   } catch (error) {
     console.error("Polar checkout error:", error);
