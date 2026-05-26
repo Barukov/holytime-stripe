@@ -6,7 +6,7 @@ import { useState } from "react";
 const products = [
   ["product159", "Essential Digital Pack", "€159", "Core guides, templates and study resources."],
   ["product161", "Professional Digital Pack", "€161", "Advanced worksheets, trackers and premium materials."],
-  ["product199", "Elite Trading Pack", "€199", "Advanced learning materials, premium strategies, technical analysis guides and structured trading resources."],
+  ["product199", "Elite  Pack", "€199", "Advanced learning materials, premium strategies, technical analysis guides and structured  resources."],
   ["starter", "Starter Digital Pack", "€219", "PDF guides, checklists, notes templates and study planners."],
   ["advanced", "Advanced Digital Pack", "€250", "Worksheets, examples, progress trackers and structured resources."],
   ["premium", "Premium Digital Bundle", "€500", "Full library with guides, templates, worksheets and bonuses."],

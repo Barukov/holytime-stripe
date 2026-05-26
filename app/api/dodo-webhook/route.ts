@@ -20,7 +20,7 @@ const PRODUCT_NAMES: Record<string, string> = {
   premium: "Premium Bundle",
   product159: "Essential Pack",
   product161: "Professional Pack",
-  product199: "Elite Trading Pack",
+  product199: "Elite  Pack",
 };
 
 const processedEvents = new Set<string>();

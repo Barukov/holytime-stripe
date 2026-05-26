@@ -16,7 +16,7 @@ const products: any = {
     tag: "Special offer",
   },
   product199: {
-    name: " Elite Trading Pack",
+    name: " Elite  Pack",
     price: "€199",
     tag: "Best value",
   },
